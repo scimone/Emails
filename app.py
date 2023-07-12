@@ -35,11 +35,16 @@ def predict_email():
         text = extract_text_from_html(html)
 
         # Classify the email
-        predicted_label = pipeline.predict([text])[0]
+        predicted_label = pipeline.predict([text])
+        predicted_probabilities = pipeline.predict_proba([text])
 
         # Return the prediction as JSON
         return jsonify({'result': True, 'data': {
-            'predicted_label': predicted_label,
+            'predicted_label': predicted_label[0],
+            'predicted_probabilities': {
+                'automated': predicted_probabilities[0][0],
+                'human': predicted_probabilities[0][1]
+            },
             'text': text
         }})
     except Exception as e:
