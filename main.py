@@ -1,17 +1,13 @@
+from sklearn.utils import resample
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics import classification_report, accuracy_score, precision_score, recall_score, f1_score
+from sklearn.model_selection import train_test_split
+from sklearn.pipeline import Pipeline
+from sklearn.svm import SVC
 import os
 import re
 from bs4 import BeautifulSoup
-from nltk import classify
-from nltk import NaiveBayesClassifier
-from nltk.corpus import stopwords
-from nltk.corpus import names
-from nltk.stem.snowball import SnowballStemmer
-from langdetect import detect
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import classification_report, accuracy_score, precision_score, recall_score, f1_score
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.pipeline import Pipeline
-from sklearn.svm import SVC
+from collections import Counter
 
 def extract_text_from_html(html):
     soup = BeautifulSoup(html, 'html.parser')
@@ -33,7 +29,6 @@ def extract_features(text):
     return features
 
 if __name__ == '__main__':
-
     # Load training data
     automated_emails_dir = 'data/1. automated'
     human_emails_dir = 'data/2. human'
@@ -52,11 +47,27 @@ if __name__ == '__main__':
             text = extract_text_from_html(html)
             human_emails.append((text, 'human'))
 
+    # Check the class distribution
+    class_distribution = Counter([label for _, label in automated_emails + human_emails])
+    print("Original Class Distribution:", class_distribution)
+
+    # Oversample the minority class
+    max_class_count = max(class_distribution.values())
+    if class_distribution['human'] > class_distribution['automated']:
+        automated_emails_resampled = resample(automated_emails, replace=True, n_samples=max_class_count, random_state=42)
+        balanced_emails = automated_emails_resampled + human_emails
+    else:
+        human_emails_resampled = resample(human_emails, replace=True, n_samples=max_class_count, random_state=42)
+        balanced_emails = automated_emails + human_emails_resampled
+
+    # Check the class distribution after oversampling
+    class_distribution = Counter([label for _, label in balanced_emails])
+    print("Class Distribution after Oversampling:", class_distribution)
+
     # Prepare training and test data
-    emails = automated_emails + human_emails
-    texts = [text for text, _ in emails]
-    labels = [label for _, label in emails]
-    text_train, text_test, label_train, label_test = train_test_split(texts, labels, test_size=0.3, random_state=42)
+    balanced_texts = [text for text, _ in balanced_emails]
+    balanced_labels = [label for _, label in balanced_emails]
+    text_train, text_test, label_train, label_test = train_test_split(balanced_texts, balanced_labels, test_size=0.2, random_state=42)
 
     # Create a pipeline with TF-IDF vectorization and SVM classifier
     pipeline = Pipeline([
