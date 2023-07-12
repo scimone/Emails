@@ -9,6 +9,7 @@ import re
 from bs4 import BeautifulSoup
 from collections import Counter
 
+
 def extract_text_from_html(html):
     soup = BeautifulSoup(html, 'html.parser')
     text = soup.get_text(separator=' ')
@@ -16,17 +17,21 @@ def extract_text_from_html(html):
     clean_text = re.sub('\s+', ' ', text).strip()
     return clean_text
 
+
 def extract_features(text):
     features = {
         'contains_greeting': bool(re.search(r'\b(hi|hello|dear|ciao|salve|gentile)\b', text, re.IGNORECASE)),
         'contains_signature': bool(re.search(r'\b(best regards|sincerely|thank you|cordiali saluti|distinti saluti|grazie)\b', text, re.IGNORECASE)),
         'contains_attachment': bool(re.search(r'\b(attachment|attached|see attached|allegato|allegati|vedi allegato)\b', text, re.IGNORECASE)),
         'contains_specific_keyword': bool(re.search(r'\b(refund|confirmation|invoice|receipt|survey|rimborso|conferma|fattura|ricevuta|sondaggio)\b', text, re.IGNORECASE)),
-        'contains_language_specific_phrases': bool(re.search(r'\b(automated message|system generated|do not reply|this email was sent automatically|messaggio automatico|generato automaticamente|non rispondere|questa email è stata inviata automaticamente)\b', text, re.IGNORECASE)),
+        'contains_language_specific_phrases': bool(
+            re.search(r'\b(automated message|system generated|do not reply|this email was sent automatically|messaggio automatico|generato automaticamente|non rispondere|questa email è stata inviata automaticamente)\b',
+                      text, re.IGNORECASE)),
         'contains_urgency_phrases': bool(re.search(r'\b(urgent|as soon as possible|reply by|deadline|time-sensitive|urgente|al più presto|rispondere entro|scadenza|tempo sensibile)\b', text, re.IGNORECASE)),
         'contains_customer_specific_info': bool(re.search(r'\b(customer name|account number|order details|membership|nome del cliente|numero di conto|dettagli dell\'ordine|membri)\b', text, re.IGNORECASE))
     }
     return features
+
 
 if __name__ == '__main__':
     # Load training data
@@ -67,7 +72,7 @@ if __name__ == '__main__':
     # Prepare training and test data
     balanced_texts = [text for text, _ in balanced_emails]
     balanced_labels = [label for _, label in balanced_emails]
-    text_train, text_test, label_train, label_test = train_test_split(balanced_texts, balanced_labels, test_size=0.2, random_state=42)
+    text_train, text_test, label_train, label_test = train_test_split(balanced_texts, balanced_labels, test_size=0.2, stratify=balanced_labels, random_state=42)
 
     # Create a pipeline with TF-IDF vectorization and SVM classifier
     pipeline = Pipeline([
