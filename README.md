@@ -6,10 +6,11 @@ A simple script with the following functions:
  
 
 # Requirements 
+```
 pip3 install -U scikit-learn
-
 pip3 install bs4
-
+pip3 install joblib
+```
 
 # Run
 To use the code, follow these steps:
