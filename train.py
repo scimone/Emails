@@ -8,6 +8,7 @@ import os
 import re
 from bs4 import BeautifulSoup
 from collections import Counter
+import joblib
 
 
 def extract_text_from_html(html):
@@ -85,6 +86,11 @@ if __name__ == '__main__':
 
     # Test the pipeline
     predicted_labels = pipeline.predict(text_test)
+
+    # Save the trained model
+    joblib.dump(pipeline, 'email_classification_model.joblib')
+
+    print("Model saved successfully.")
 
     # Compute evaluation metrics
     accuracy = accuracy_score(label_test, predicted_labels)
