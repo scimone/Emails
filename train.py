@@ -78,19 +78,22 @@ if __name__ == '__main__':
     # Create a pipeline with TF-IDF vectorization and SVM classifier
     pipeline = Pipeline([
         ('tfidf', TfidfVectorizer()),
-        ('svm', SVC())
+        ('svm', SVC(probability=True))
     ])
 
     # Train the pipeline
     pipeline.fit(text_train, label_train)
 
     # Test the pipeline
-    predicted_labels = pipeline.predict(text_test)
+    predicted_probabilities = pipeline.predict_proba(text_test)
 
     # Save the trained model
     joblib.dump(pipeline, 'email_classification_model.joblib')
 
     print("Model saved successfully.")
+
+    # Get the predicted labels
+    predicted_labels = pipeline.classes_[predicted_probabilities.argmax(axis=1)]
 
     # Compute evaluation metrics
     accuracy = accuracy_score(label_test, predicted_labels)
@@ -106,10 +109,11 @@ if __name__ == '__main__':
     print(f"F1-Score: {f1}")
     print(f"\nClassification Report:\n{classification_report_output}")
 
-    # Print examples and classifications
+    # Print examples, classifications, and probabilities
     print("Examples from the Test Set:")
-    for text, label, predicted_label in zip(text_test[:5], label_test[:5], predicted_labels[:5]):
+    for text, label, predicted_label, probabilities in zip(text_test[:5], label_test[:5], predicted_labels[:5], predicted_probabilities[:5]):
         print(f"Text: {text}")
         print(f"True Label: {label}")
         print(f"Predicted Label: {predicted_label}")
+        print(f"Probabilities: {round(probabilities[0]*100)}% automated, {round(probabilities[1]*100)}% human")
         print("-----------------------")
