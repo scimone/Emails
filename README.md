@@ -6,11 +6,12 @@ A simple script with the following functions:
  
 
 # Requirements 
+```
 pip3 install -U scikit-learn
 pip3 install flask
 pip3 install bs4
-pip3 install flask
-
+pip3 install joblib
+```
 
 # Run
 
