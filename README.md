@@ -11,6 +11,7 @@ pip3 install -U scikit-learn
 pip3 install flask
 pip3 install bs4
 pip3 install joblib
+pip3 install gunicorn
 ```
 
 # Run
@@ -23,3 +24,7 @@ pip3 install joblib
 ## Classify an email
 1. Run `flask run` in the main root, that will start a service in `http://127.0.0.1:5000/`
 2. Use `[POST] /predict` endpoint to predict new email
+
+
+# Run in production
+`gunicorn --bind 127.0.0.1:8001 wsgi:app`

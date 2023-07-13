@@ -1,0 +1,5 @@
+apps:
+  - name: email-ai-server
+    cwd: ./email-ai-server
+    script: ./bin/startup.sh
+    interpreter: bash
