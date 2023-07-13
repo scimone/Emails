@@ -15,6 +15,10 @@ def extract_text_from_html(html):
     clean_text = re.sub('\s+', ' ', text).strip()
     return clean_text
 
+@app.route('/', methods=['GET'])
+def status():
+    return jsonify({'status': 'ok'})
+
 @app.route('/predict', methods=['POST'])
 def predict_email():
     try:
