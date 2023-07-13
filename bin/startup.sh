@@ -1,1 +1,1 @@
-gunicorn --bind 0.0.0.0:8001 wsgi:app
+gunicorn --bind 127.0.0.1:8001 --workers 3 --bind unix:/home/ubuntu/email-ai-server/app.sock wsgi:app
