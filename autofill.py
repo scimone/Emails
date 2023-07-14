@@ -130,39 +130,7 @@ def transform_string(input_string):
     return transformed_string
 
 
-def calculate_string_similarity_levenshtein(str1, str2):
-    """
-    Calculates the similarity score between two strings using the Levenshtein distance algorithm.
-
-    Args:
-        str1 (str): The first string.
-        str2 (str): The second string.
-
-    Returns:
-        float: The similarity score between 0 and 1.
-    """
-    similarity_score = SequenceMatcher(None, str1, str2).ratio()
-    return similarity_score
-
-
-def calculate_string_similarity_words(str1, str2):
-    """
-    Calculates the similarity score between two strings based on the ratio of common characters.
-
-    Args:
-        str1 (str): The first string.
-        str2 (str): The second string.
-
-    Returns:
-        float: The similarity score between 0 and 1.
-    """
-    str1_length = len(str1)
-    common_chars = sum(1 for char in str1 if char in str2)
-    similarity_score = common_chars / str1_length
-    return similarity_score
-
-
-def calculate_string_similarity_weighted(str1, str2):
+def calculate_string_similarity_weighted(str1, str2, weights=None):
     """
     Calculates the weighted similarity score between two strings using word similarity,
     Levenshtein coefficient, and exact match.
@@ -170,15 +138,35 @@ def calculate_string_similarity_weighted(str1, str2):
     Args:
         str1 (str): The first string.
         str2 (str): The second string.
+        weights (list, optional): List of weights for word similarity, Levenshtein similarity,
+            and exact match similarity, respectively. Defaults to [2/5, 2/5, 1/5].
 
     Returns:
         float: The weighted similarity score between 0 and 1.
     """
+    if weights is None:
+        weights = [2 / 5, 2 / 5, 1 / 5]
+
+    def calculate_string_similarity_levenshtein(str1, str2):
+        similarity_score = SequenceMatcher(None, str1, str2).ratio()
+        return similarity_score
+
+    def calculate_string_similarity_words(str1, str2):
+        str1_length = len(str1)
+        common_chars = sum(1 for char in str1 if char in str2)
+        similarity_score = common_chars / str1_length
+        return similarity_score
+
+    def calculate_string_similarity_exact_match(str1, str2):
+        exact_match = ' ' + str1 in str2
+        return exact_match
+
     str1, str2 = transform_string(str1), transform_string(str2)
     word_similarity = calculate_string_similarity_words(str1, str2)
     levenshtein_similarity = calculate_string_similarity_levenshtein(str1, str2)
-    exact_match = ' ' + str1 in str2
-    similarity_score = 2 / 5 * word_similarity + 2 / 5 * levenshtein_similarity + 1 / 5 * exact_match
+    exact_match_similarity = calculate_string_similarity_exact_match(str1, str2)
+
+    similarity_score = weights[0] * word_similarity + weights[1] * levenshtein_similarity + weights[2] * exact_match_similarity
     return similarity_score
 
 
@@ -211,7 +199,7 @@ def split_string(field_name):
         for lobj in layout:
             if isinstance(lobj, LTTextBox):
                 line = lobj.get_text()
-                if calculate_string_similarity_levenshtein(transform_string(field_name), transform_string(line)) > 0.85:
+                if calculate_string_similarity_weighted(transform_string(field_name), transform_string(line), weights=[0, 1, 0]) > 0.85:
                     substrings = re.split(r'\s{2,}', line)
                     substrings = [substring for substring in substrings if substring.strip()]
     return substrings
