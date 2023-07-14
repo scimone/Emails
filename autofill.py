@@ -94,19 +94,20 @@ def fill_pdf_form(input_path, output_path, field_data):
                 field_name = field_names[j]
                 j += 1
 
-                max_similarity_score = 0
-                max_similarity_key = None
+                if not annotation['/V']:  # Only update if the field doesn't contain text already
+                    max_similarity_score = 0
+                    max_similarity_key = None
 
-                for key in field_data:
-                    similarity_score = calculate_string_similarity_weighted(key, field_name)
+                    for key in field_data:
+                        similarity_score = calculate_string_similarity_weighted(key, field_name)
 
-                    if similarity_score > 0.6 and similarity_score > max_similarity_score:
-                        max_similarity_score = similarity_score
-                        max_similarity_key = key
+                        if similarity_score > 0.6 and similarity_score > max_similarity_score:
+                            max_similarity_score = similarity_score
+                            max_similarity_key = key
 
-                if max_similarity_key is not None:
-                    print(max_similarity_score, max_similarity_key, field_name)
-                    annotation.update(PdfDict(PdfDict(AP=field_data[max_similarity_key], V=field_data[max_similarity_key])))
+                    if max_similarity_key is not None:
+                        print(max_similarity_score, max_similarity_key, field_name)
+                        annotation.update(PdfDict(PdfDict(AP=field_data[max_similarity_key], V=field_data[max_similarity_key])))
 
     # Write the filled form to the output PDF
     PdfWriter().write(output_path, template_pdf)
