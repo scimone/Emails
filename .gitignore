@@ -154,3 +154,5 @@ cython_debug/
 /data/1. automated/
 
 .DS_Store
+
+.python-version

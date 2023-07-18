@@ -25,18 +25,10 @@ def predict_email():
         # Check if the request has the correct API key
         api_key = request.headers.get('x-api-key')
         if api_key != 'lvlScmd2Oup2cmjYQkw12gASiYwLBZzd':
-            return jsonify({'error': 'Invalid API key'}), 401
-
-        if 'file' not in request.files:
-            return jsonify({'error': 'No file uploaded'}), 400
-
-        file = request.files['file']
-        if file.filename == '':
-            return jsonify({'error': 'No file selected'}), 400
-
+            return jsonify({'result': False, 'error': 'Invalid API key'}), 401
+        text = request.json.get('text')
         # Read the file and extract text from HTML
-        html = file.read().decode('utf-8')
-        text = extract_text_from_html(html)
+        text = extract_text_from_html(text)
 
         # Classify the email
         predicted_label = pipeline.predict([text])
